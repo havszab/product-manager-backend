@@ -1,5 +1,6 @@
 package com.havszab.projectmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,10 @@ public class User {
 
     @Column
     private String password;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "owner")
+    private Acquisition acquisition;
 
     public User(String email, String password) {
         this.email = email;

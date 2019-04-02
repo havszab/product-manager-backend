@@ -17,7 +17,7 @@ public class Product {
     @ManyToOne
     private ProductCategory productCategory;
 
-    @OneToOne
+    @ManyToOne
     private UnitCategory unitCategory;
 
     @Column
@@ -34,6 +34,9 @@ public class Product {
 
     @Enumerated(value = EnumType.STRING)
     private Status status;
+
+    @ManyToOne
+    private Acquisition acquisition;
 
     public Product() {
     }
