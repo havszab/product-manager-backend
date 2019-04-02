@@ -1,14 +1,12 @@
 package com.havszab.projectmanager.service;
 
-import com.havszab.projectmanager.model.Product;
-import com.havszab.projectmanager.model.ProductCategory;
-import com.havszab.projectmanager.model.UnitCategory;
-import com.havszab.projectmanager.model.User;
-import com.havszab.projectmanager.repositories.ProductCategoryRepo;
-import com.havszab.projectmanager.repositories.ProductRepo;
-import com.havszab.projectmanager.repositories.UnitCategoryRepo;
-import com.havszab.projectmanager.repositories.UserRepo;
+import com.havszab.projectmanager.model.*;
+import com.havszab.projectmanager.repositories.*;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @Component
 public class ExampleDataInitializer {
@@ -16,7 +14,8 @@ public class ExampleDataInitializer {
     public ExampleDataInitializer(ProductRepo productRepo,
                                   ProductCategoryRepo productCategoryRepo,
                                   UnitCategoryRepo unitCategoryRepo,
-                                  UserRepo userRepo) {
+                                  UserRepo userRepo,
+                                  AcquisitionRepo acquisitionRepo) {
         ProductCategory apple = new ProductCategory("apple");
         UnitCategory chest = new UnitCategory("chest");
         Product exampleProduct = new Product(apple, chest, (long) 30, (long) 30000);
@@ -26,6 +25,16 @@ public class ExampleDataInitializer {
         productRepo.save(exampleProduct);
 
         userRepo.save(new User("havszab@gmail.com", "admin"));
-//
+        Acquisition exampleAcq = new Acquisition(userRepo.findByEmail("havszab@gmail.com"));
+
+        Product secProd = new Product(apple, chest, (long) 40, (long) 50000);
+        productRepo.save(secProd);
+        HashSet<Product> products = new HashSet<>();
+        products.add(exampleProduct);
+        products.add(secProd);
+        exampleAcq.setProducts(products);
+
+        acquisitionRepo.save(exampleAcq);
+
     }
 }

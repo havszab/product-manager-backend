@@ -1,11 +1,8 @@
 package com.havszab.projectmanager.controller;
 
-import com.havszab.projectmanager.model.Product;
-import com.havszab.projectmanager.model.ProductCategory;
-import com.havszab.projectmanager.model.UnitCategory;
-import com.havszab.projectmanager.repositories.ProductCategoryRepo;
-import com.havszab.projectmanager.repositories.ProductRepo;
-import com.havszab.projectmanager.repositories.UnitCategoryRepo;
+import com.havszab.projectmanager.model.*;
+import com.havszab.projectmanager.repositories.*;
+import com.sun.xml.internal.xsom.impl.scd.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +22,12 @@ public class AcquisitionController {
 
     @Autowired
     UnitCategoryRepo unitCategoryRepo;
+
+    @Autowired
+    AcquisitionRepo acquisitionRepo;
+
+    @Autowired
+    UserRepo userRepo;
 
     @CrossOrigin
     @GetMapping("/products")
@@ -59,4 +62,16 @@ public class AcquisitionController {
         }
         return "Save successful";
     }
+
+    @CrossOrigin
+    @PostMapping("/get-acquisition")
+    public Map getAcquisitionByUser(@RequestBody Map userData) {
+        Map result = new HashMap();
+        String email = (String) userData.get("email");
+        User user = userRepo.findByEmail(email);
+        Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
+        result.put("acquisition", acquisition);
+        return result;
+    }
+
 }

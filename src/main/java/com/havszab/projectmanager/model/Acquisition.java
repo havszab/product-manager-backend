@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,9 +15,17 @@ public class Acquisition {
     @GeneratedValue
     private Long id;
 
-    @OneToMany(mappedBy = "acquisition")
-    private List<Product> products;
+    @OneToMany
+    private Set<Product> products;
 
     @OneToOne
     private User owner;
+
+    public Acquisition() {
+    }
+
+    public Acquisition(User owner) {
+        this.owner = owner;
+    }
+
 }
