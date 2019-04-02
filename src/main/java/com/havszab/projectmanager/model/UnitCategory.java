@@ -1,12 +1,11 @@
 package com.havszab.projectmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,6 +17,16 @@ public class UnitCategory {
     private Long id;
 
     @Column
-    private String name;
+    private String unitName;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "unitCategory")
+    private List<Product> products;
+
+    public UnitCategory(String unitName) {
+        this.unitName = unitName;
+    }
+
+    public UnitCategory() {
+    }
 }

@@ -14,10 +14,10 @@ public class Product {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @ManyToOne
     private ProductCategory productCategory;
 
-    @Column
+    @OneToOne
     private UnitCategory unitCategory;
 
     @Column
@@ -29,15 +29,46 @@ public class Product {
     @Transient
     private double unitPrice;
 
+    @Column(columnDefinition = "text")
+    private String description;
+
+    @Enumerated(value = EnumType.STRING)
+    private Status status;
+
     public Product() {
     }
 
-    public Product(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, Long itemPrice, double unitPrice) {
+    public Product(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, Long itemPrice) {
         this.productCategory = productCategory;
         this.unitCategory = unitCategory;
         this.quantity = quantity;
         this.itemPrice = itemPrice;
-        this.unitPrice = unitPrice;
+        this.status = Status.NEW;
     }
 
+    public Product(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, Long itemPrice, String description) {
+        this.productCategory = productCategory;
+        this.unitCategory = unitCategory;
+        this.quantity = quantity;
+        this.itemPrice = itemPrice;
+        this.description = description;
+        this.status = Status.NEW;
+    }
+
+    public long getUnitPrice() {
+        return (long) this.itemPrice / this.quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", productCategory=" + productCategory +
+                ", unitCategory=" + unitCategory +
+                ", quantity=" + quantity +
+                ", itemPrice=" + itemPrice +
+                ", unitPrice=" + unitPrice +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }
