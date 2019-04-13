@@ -1,4 +1,4 @@
-package com.havszab.projectmanager.model;
+package com.havszab.productmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -27,6 +27,10 @@ public class User {
     @JsonIgnore
     @OneToOne(mappedBy = "owner")
     private Acquisition acquisition;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "owner")
+    private Stock stock;
 
     public User(String email, String password) {
         this.email = email;

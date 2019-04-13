@@ -1,6 +1,6 @@
-package com.havszab.projectmanager.repositories;
+package com.havszab.productmanager.repositories;
 
-import com.havszab.projectmanager.model.UnitCategory;
+import com.havszab.productmanager.model.UnitCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

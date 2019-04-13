@@ -1,6 +1,6 @@
-package com.havszab.projectmanager.repositories;
+package com.havszab.productmanager.repositories;
 
-import com.havszab.projectmanager.model.User;
+import com.havszab.productmanager.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

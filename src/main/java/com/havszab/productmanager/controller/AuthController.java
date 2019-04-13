@@ -1,7 +1,7 @@
-package com.havszab.projectmanager.controller;
+package com.havszab.productmanager.controller;
 
-import com.havszab.projectmanager.model.User;
-import com.havszab.projectmanager.repositories.UserRepo;
+import com.havszab.productmanager.model.User;
+import com.havszab.productmanager.repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;

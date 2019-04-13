@@ -1,13 +1,13 @@
-package com.havszab.projectmanager.model;
+package com.havszab.productmanager.model;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 
-@Entity
 @Getter
 @Setter
+@Entity(name = "products")
 public class Product {
 
     @Id
@@ -55,8 +55,8 @@ public class Product {
         this.status = Status.NEW;
     }
 
-    public long getUnitPrice() {
-        return (long) this.itemPrice / this.quantity;
+    public double getUnitPrice() {
+        return (double) this.itemPrice / this.quantity;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.havszab.projectmanager.model;
+package com.havszab.productmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -7,9 +7,9 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.List;
 
-@Entity
 @Getter
 @Setter
+@Entity(name = "unit_categories")
 public class UnitCategory {
 
     @Id

@@ -1,12 +1,10 @@
-package com.havszab.projectmanager.service;
+package com.havszab.productmanager.service;
 
-import com.havszab.projectmanager.model.*;
-import com.havszab.projectmanager.repositories.*;
+import com.havszab.productmanager.model.*;
+import com.havszab.productmanager.repositories.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 @Component
 public class ExampleDataInitializer {
@@ -15,7 +13,8 @@ public class ExampleDataInitializer {
                                   ProductCategoryRepo productCategoryRepo,
                                   UnitCategoryRepo unitCategoryRepo,
                                   UserRepo userRepo,
-                                  AcquisitionRepo acquisitionRepo) {
+                                  AcquisitionRepo acquisitionRepo,
+                                  StockRepo stockRepo) {
         ProductCategory apple = new ProductCategory("apple");
         UnitCategory chest = new UnitCategory("chest");
         Product exampleProduct = new Product(apple, chest, (long) 30, (long) 30000);
@@ -35,6 +34,12 @@ public class ExampleDataInitializer {
         exampleAcq.setProducts(products);
 
         acquisitionRepo.save(exampleAcq);
+
+        User user = userRepo.findByEmail("havszab@gmail.com");
+        Stock stock = new Stock(user);
+        stockRepo.save(stock);
+        user.setStock(stock);
+        userRepo.save(user);
 
     }
 }

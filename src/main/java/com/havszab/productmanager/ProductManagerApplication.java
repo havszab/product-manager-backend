@@ -1,13 +1,13 @@
-package com.havszab.projectmanager;
+package com.havszab.productmanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ProjectManagerApplication {
+public class ProductManagerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ProjectManagerApplication.class, args);
+        SpringApplication.run(ProductManagerApplication.class, args);
     }
 
 }

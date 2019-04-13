@@ -1,4 +1,4 @@
-package com.havszab.projectmanager;
+package com.havszab.productmanager;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,4 +1,4 @@
-package com.havszab.projectmanager.model;
+package com.havszab.productmanager.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-@Entity
+@Entity(name = "acquisitions")
 public class Acquisition {
 
     @Id
