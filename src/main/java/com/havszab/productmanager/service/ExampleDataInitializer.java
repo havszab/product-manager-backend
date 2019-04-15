@@ -14,7 +14,8 @@ public class ExampleDataInitializer {
                                   UnitCategoryRepo unitCategoryRepo,
                                   UserRepo userRepo,
                                   AcquisitionRepo acquisitionRepo,
-                                  StockRepo stockRepo) {
+                                  StockRepo stockRepo,
+                                  SalesRepo salesRepo) {
         ProductCategory apple = new ProductCategory("apple");
         UnitCategory chest = new UnitCategory("chest");
         Product exampleProduct = new Product(apple, chest, (long) 30, (long) 30000);
@@ -37,9 +38,11 @@ public class ExampleDataInitializer {
 
         User user = userRepo.findByEmail("havszab@gmail.com");
         Stock stock = new Stock(user);
+        Sales sales = new Sales(user);
         stockRepo.save(stock);
+        salesRepo.save(sales);
         user.setStock(stock);
+        user.setSales(sales);
         userRepo.save(user);
-
     }
 }

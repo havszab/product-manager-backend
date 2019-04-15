@@ -24,7 +24,7 @@ public class Product {
     private Long quantity;
 
     @Column
-    private Long itemPrice;
+    private double itemPrice;
 
     @Transient
     private double unitPrice;
@@ -38,7 +38,7 @@ public class Product {
     public Product() {
     }
 
-    public Product(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, Long itemPrice) {
+    public Product(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, double itemPrice) {
         this.productCategory = productCategory;
         this.unitCategory = unitCategory;
         this.quantity = quantity;
@@ -46,7 +46,7 @@ public class Product {
         this.status = Status.NEW;
     }
 
-    public Product(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, Long itemPrice, String description) {
+    public Product(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, double itemPrice, String description) {
         this.productCategory = productCategory;
         this.unitCategory = unitCategory;
         this.quantity = quantity;

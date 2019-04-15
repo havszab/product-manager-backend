@@ -18,27 +18,27 @@ public class SoldProduct extends Product{
     private Long sellingPrice;
 
     @Column
-    private Long profit;
+    private double profit;
 
 
     public SoldProduct() {
 
     }
 
-    public SoldProduct(Date sellingDate, Long sellingPrice, Long profit) {
+    public SoldProduct(Date sellingDate, Long sellingPrice, double profit) {
         this.sellingDate = sellingDate;
         this.sellingPrice = sellingPrice;
         this.profit = profit;
     }
 
-    public SoldProduct(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, Long itemPrice, Date sellingDate, Long sellingPrice, Long profit) {
+    public SoldProduct(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, double itemPrice, Date sellingDate, Long sellingPrice, double profit) {
         super(productCategory, unitCategory, quantity, itemPrice);
         this.sellingDate = sellingDate;
         this.sellingPrice = sellingPrice;
         this.profit = profit;
     }
 
-    public SoldProduct(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, Long itemPrice, String description, Date sellingDate, Long sellingPrice, Long profit) {
+    public SoldProduct(ProductCategory productCategory, UnitCategory unitCategory, Long quantity, double itemPrice, String description, Date sellingDate, Long sellingPrice, double profit) {
         super(productCategory, unitCategory, quantity, itemPrice, description);
         this.sellingDate = sellingDate;
         this.sellingPrice = sellingPrice;

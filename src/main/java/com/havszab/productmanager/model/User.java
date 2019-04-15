@@ -32,6 +32,10 @@ public class User {
     @OneToOne(mappedBy = "owner")
     private Stock stock;
 
+    @JsonIgnore
+    @OneToOne(mappedBy = "owner")
+    private Sales sales;
+
     public User(String email, String password) {
         this.email = email;
         this.password = password;

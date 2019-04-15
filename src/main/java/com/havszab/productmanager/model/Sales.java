@@ -26,6 +26,10 @@ public class Sales {
         this.owner = owner;
     }
 
+    public Sales(User owner) {
+        this.owner = owner;
+    }
+
     public Sales() {
 
     }
