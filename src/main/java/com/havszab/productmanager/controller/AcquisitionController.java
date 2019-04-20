@@ -1,14 +1,13 @@
 package com.havszab.productmanager.controller;
 
 import com.havszab.productmanager.model.*;
+import com.havszab.productmanager.model.enums.ActionColor;
+import com.havszab.productmanager.model.enums.Status;
 import com.havszab.productmanager.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @RestController
@@ -31,6 +30,9 @@ public class AcquisitionController {
 
     @Autowired
     StockRepo stockRepo;
+
+    @Autowired
+    ActionRepo actionRepo;
 
     private final String logBase = "[CONTROLLER LOG: " + this.getClass() +  "] - ";
 
@@ -138,12 +140,14 @@ public class AcquisitionController {
             }
             user.setStock(stock);
 
+            int numOfItems = toFinish.getProducts().size();
             acquisitionRepo.removeAcquisitionByOwner(user);
             Acquisition emptyAcquisition = new Acquisition(user);
             acquisitionRepo.save(emptyAcquisition);
             user.setAcquisition(emptyAcquisition);
             userRepo.save(user);
             System.out.println(logBase + "Acquisition finished");
+            actionRepo.save(new Action(numOfItems + " products delivered to stock", new Date(), user, ActionColor.BLUE));
             return "Acquisition finished";
         } catch (Exception e) {
             System.out.println(e);

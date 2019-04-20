@@ -1,5 +1,6 @@
 package com.havszab.productmanager.model;
 
+import com.havszab.productmanager.model.enums.Status;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,7 +8,7 @@ import javax.persistence.*;
 
 @Getter
 @Setter
-@Entity(name = "products")
+@Entity
 public class Product {
 
     @Id

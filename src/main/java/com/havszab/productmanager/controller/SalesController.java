@@ -1,6 +1,7 @@
 package com.havszab.productmanager.controller;
 
 import com.havszab.productmanager.model.*;
+import com.havszab.productmanager.model.enums.ActionColor;
 import com.havszab.productmanager.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,6 +30,18 @@ public class SalesController {
     @Autowired
     StockRepo stockRepo;
 
+    @Autowired
+    ActionRepo actionRepo;
+
+    @CrossOrigin
+    @PostMapping("get-sales")
+    public Map getAllSales(@RequestBody Map userData) {
+        Map result = new HashMap();
+        User user = userRepo.findByEmail((String) userData.get("email"));
+        result.put("sales", salesRepo.findSalesByOwner(user));
+        return result;
+    }
+
     @CrossOrigin
     @PostMapping("sell-item")
     public String sellItem(@RequestBody Map request) {
@@ -47,14 +60,23 @@ public class SalesController {
                     product.getProductCategory(),
                     product.getUnitCategory(),
                     quantity,
-                    product.getItemPrice(),
+                    value,
                     "",
                     new Date(),
                     income,
                     profit);
+            actionRepo.save(new Action(
+                    quantity +
+                            " " +
+                            product.getUnitCategory().getUnitName() +
+                            " of " +
+                            product.getProductCategory().getProductName() +
+                            " sold for " +
+                            (int) value + "HUF",
+                    new Date(), user, ActionColor.GREEN));
             soldProductRepo.save(soldProduct);
 
-            if (product.getQuantity() ==  quantity) {
+            if (product.getQuantity() == quantity) {
                 Set<Product> stockProducts = stockRepo.findStockByOwner(user).getProducts();
                 stockProducts.remove(product);
                 stockRepo.save(stockRepo.findStockByOwner(user));
