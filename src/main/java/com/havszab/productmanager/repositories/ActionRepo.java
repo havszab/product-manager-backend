@@ -11,4 +11,7 @@ import java.util.List;
 public interface ActionRepo extends JpaRepository<Action, Long> {
 
     List<Action> getTop10ByOwnerOrderByDateDesc(User owner);
+
+    List<Action> getTop5ByOwnerOrderByDateDesc(User owner);
+
 }

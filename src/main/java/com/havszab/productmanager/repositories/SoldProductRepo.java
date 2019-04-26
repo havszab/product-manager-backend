@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
 
 @Repository
 public interface SoldProductRepo extends JpaRepository<SoldProduct, Long> {
@@ -26,6 +25,8 @@ public interface SoldProductRepo extends JpaRepository<SoldProduct, Long> {
             "SELECT (SUM(profit)/(SELECT SUM(profit) FROM product) * 100) AS profit_perc, c2.product_name " +
             "FROM product " +
             "JOIN product_categories c2 on product.product_category_id = c2.id " +
-            "GROUP BY c2.product_name; ", nativeQuery = true)
+            "GROUP BY c2.product_name " +
+            "ORDER BY profit_perc DESC " +
+            "LIMIT 5; ", nativeQuery = true)
     List<Object> getProfitPercentPerProductCategory();
 }

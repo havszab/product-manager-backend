@@ -34,7 +34,7 @@ public class AcquisitionController {
     @Autowired
     ActionRepo actionRepo;
 
-    private final String logBase = "[CONTROLLER LOG: " + this.getClass() +  "] - ";
+    private final String logBase = "[CONTROLLER LOG: " + this.getClass() + "] - ";
 
     @CrossOrigin
     @GetMapping("/products")
@@ -84,14 +84,17 @@ public class AcquisitionController {
     }
 
     @CrossOrigin
-    @PostMapping("/get-acquisition")
-    public Map getAcquisitionByUser(@RequestBody Map userData) {
+    @GetMapping("/get-acquisition")
+    public Map getAcquisitionByUser(@RequestParam String email) {
         Map result = new HashMap();
-        String email = (String) userData.get("email");
-        User user = userRepo.findByEmail(email);
-        Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
-        result.put("acquisition", acquisition);
-        System.out.println(logBase + "Acquisition request fulfilled for user: " + email);
+        try {
+            User user = userRepo.findByEmail(email);
+            Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
+            result.put("acquisition", acquisition);
+            System.out.println(logBase + "Acquisition request fulfilled for user: " + email);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
         return result;
     }
 
@@ -156,4 +159,76 @@ public class AcquisitionController {
         System.out.println(logBase + "Acquisition could not finish");
         return "Acquisition could not finish";
     }
+
+    @CrossOrigin
+    @PostMapping("finish-selected-items")
+    public Map finishSelected(@RequestBody Map requestData) {
+        Map response = new HashMap();
+        try {
+            User user = userRepo.findByEmail((String) requestData.get("email"));
+            List<LinkedHashMap> rawProducts = (ArrayList) requestData.get("products");
+            Set<Product> products = mapRequestDataToProductSet(rawProducts);
+
+            Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
+            Set<Product> acqProducts = acquisition.getProducts();
+
+            acqProducts.removeAll(products);
+            acquisition.setProducts(acqProducts);
+
+            Stock stock = stockRepo.findStockByOwner(user);
+            Set<Product> stockProducts = stock.getProducts();
+            stockProducts.addAll(products);
+            stock.setProducts(stockProducts);
+
+            acquisitionRepo.save(acquisition);
+            stockRepo.save(stock);
+
+            actionRepo.save(new Action(products.size() + " products delivered to stock", new Date(), user, ActionColor.BLUE));
+
+            response.put("success", true);
+            response.put("message", "Items moved to stock successfully");
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("success", false);
+            response.put("message", "Could not finish acquisition with the selected items.");
+        }
+        return response;
+    }
+
+    @CrossOrigin
+    @PostMapping("remove-selected-items")
+    public Map removeSelectedItems(@RequestBody Map requestData) {
+        Map response = new HashMap();
+        try {
+            User user = userRepo.findByEmail((String) requestData.get("email"));
+            List<LinkedHashMap> rawProducts = (ArrayList) requestData.get("products");
+            Set<Product> products = mapRequestDataToProductSet(rawProducts);
+
+            Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
+            Set<Product> acqProducts = acquisition.getProducts();
+
+            acqProducts.removeAll(products);
+            acquisition.setProducts(acqProducts);
+
+            acquisitionRepo.save(acquisition);
+
+            response.put("success", true);
+            response.put("message", "Items removed successfully");
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("success", false);
+            response.put("message", "Could not remove selected items.");
+        }
+        return response;
+    }
+
+    private Set<Product> mapRequestDataToProductSet(List<LinkedHashMap> unmappedList) {
+        Set<Product> products = new HashSet<>();
+        for (LinkedHashMap prod : unmappedList) {
+            products.add(productRepo.getOne((long) (int) prod.get("id")));
+        }
+        return products;
+    }
+
+
 }

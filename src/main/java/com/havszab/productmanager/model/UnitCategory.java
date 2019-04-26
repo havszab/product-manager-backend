@@ -16,7 +16,7 @@ public class UnitCategory {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String unitName;
 
     @JsonIgnore

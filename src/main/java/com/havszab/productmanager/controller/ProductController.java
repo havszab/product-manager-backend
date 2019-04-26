@@ -9,11 +9,8 @@ import com.havszab.productmanager.repositories.UnitCategoryRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -35,7 +32,7 @@ public class ProductController {
     @PostMapping("/get-product-categories")
     public Map getProductCategories() {
         Map result = new HashMap();
-        result.put("productCategories", productCategoryRepo.findAll());
+        result.put("productCategories", productCategoryRepo.findAllByProductNameIsNotNullOrderByProductName());
         return result;
     }
 
@@ -43,7 +40,7 @@ public class ProductController {
     @PostMapping("/get-unit-categories")
     public Map getUnitCategories() {
         Map result = new HashMap();
-        result.put("unitCategories", unitCategoryRepo.findAll());
+        result.put("unitCategories", unitCategoryRepo.findAllByUnitNameIsNotNullOrderByUnitName());
         return result;
     }
 
@@ -89,7 +86,7 @@ public class ProductController {
     @GetMapping("get-profit-percent")
     public Map getProfitPercentPerProduct() {
         Map result = new HashMap();
-        result.put("profit-percent", soldProductRepo.getProfitPercentPerProductCategory());
+        result.put("profitPercent", soldProductRepo.getProfitPercentPerProductCategory());
         return result;
     }
 }

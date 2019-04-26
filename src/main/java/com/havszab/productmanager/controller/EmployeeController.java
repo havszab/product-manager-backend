@@ -1,6 +1,10 @@
 package com.havszab.productmanager.controller;
 
+import com.havszab.productmanager.model.Cost;
 import com.havszab.productmanager.model.Employee;
+import com.havszab.productmanager.model.User;
+import com.havszab.productmanager.model.enums.CostType;
+import com.havszab.productmanager.repositories.CostRepo;
 import com.havszab.productmanager.repositories.EmployeeRepo;
 import com.havszab.productmanager.repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,9 @@ public class EmployeeController {
     @Autowired
     UserRepo userRepo;
 
+    @Autowired
+    CostRepo costRepo;
+
     @CrossOrigin
     @PostMapping("save-employee")
     public String saveEmployee(@RequestBody Map employee) {
@@ -29,6 +36,8 @@ public class EmployeeController {
             String email = (String) employee.get("email");
             String position = (String) employee.get("position");
             Double salary = Double.parseDouble( (String) employee.get("salary"));
+            User user = userRepo.findByEmail(ownerEmail);
+
             employeeRepo.save(new Employee(
                     firstName,
                     lastName,
@@ -36,8 +45,10 @@ public class EmployeeController {
                     salary,
                     phone,
                     position,
-                    userRepo.findByEmail(ownerEmail)
+                    user
             ));
+
+            costRepo.save(new Cost(firstName + " " + lastName + "'s salary", CostType.MONTHLY, salary, user));
         } catch (Exception e) {
             System.out.println(e);
             return "Could not create employee with the given data";

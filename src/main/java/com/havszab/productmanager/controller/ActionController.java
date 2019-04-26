@@ -21,11 +21,28 @@ public class ActionController {
     private ActionRepo actionRepo;
 
     @CrossOrigin
-    @GetMapping("get-recent-actions")
-    public Map getRecentActions(@RequestParam String email) {
+    @GetMapping("get-recent-10-actions")
+    public Map getRecent10Actions(@RequestParam String email) {
         Map result = new HashMap();
-        result.put("actions", actionRepo.getTop10ByOwnerOrderByDateDesc(userRepo.findByEmail(email)));
+        try {
+            result.put("actions", actionRepo.getTop10ByOwnerOrderByDateDesc(userRepo.findByEmail(email)));
+        } catch (Exception e) {
+            System.out.println(e);
+        }
         return result;
     }
+
+    @CrossOrigin
+    @GetMapping("get-recent-5-actions")
+    public Map getRecent5Actions(@RequestParam String email) {
+        Map result = new HashMap();
+        try {
+        result.put("actions", actionRepo.getTop5ByOwnerOrderByDateDesc(userRepo.findByEmail(email)));
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return result;
+    }
+
 
 }

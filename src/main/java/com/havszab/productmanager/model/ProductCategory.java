@@ -16,7 +16,7 @@ public class ProductCategory {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String productName;
 
     @JsonIgnore
