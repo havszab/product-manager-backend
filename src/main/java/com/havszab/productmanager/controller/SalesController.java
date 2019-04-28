@@ -4,12 +4,10 @@ import com.havszab.productmanager.model.*;
 import com.havszab.productmanager.model.enums.ActionColor;
 import com.havszab.productmanager.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 @RestController
@@ -95,6 +93,36 @@ public class SalesController {
             return "fail";
         }
         return "success";
+    }
+
+    @CrossOrigin
+    @GetMapping("get-income-per-days")
+    public Map getIncomePerDays(@RequestParam String dateFrom, @RequestParam String dateTo, @RequestParam String email) {
+        Map response = new HashMap();
+        try {
+            LocalDate from = new Date(Long.parseLong(dateFrom)).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate to = new Date(Long.parseLong(dateTo)).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            int beginningDay = from.getDayOfMonth();
+            int endDay = to.getDayOfMonth();
+
+            Long id = userRepo.findByEmail(email).getId();
+
+            List<Object> result = new ArrayList<>();
+
+            while (beginningDay != endDay + 1) {
+                Date fromDay = new GregorianCalendar(from.getYear(), from.getMonthValue() - 1, beginningDay).getTime();
+                Date toDay = new GregorianCalendar(from.getYear(), from.getMonthValue() - 1, beginningDay + 1).getTime();
+                result.add(soldProductRepo.getSumIncomeByDay(fromDay, toDay, id));
+                beginningDay++;
+            }
+            response.put("success", true);
+            response.put("incomePerDays", result);
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("success", false);
+            response.put("error", e);
+        }
+        return response;
     }
 
 }
