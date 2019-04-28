@@ -91,15 +91,6 @@ public class AcquisitionController {
     }
 
     @CrossOrigin
-    @GetMapping("/get-all-status")
-    public Map getAllStatus() {
-        Map result = new HashMap();
-        result.put("statuses", Status.values());
-        System.out.println(logBase + "Statuses provided");
-        return result;
-    }
-
-    @CrossOrigin
     @PostMapping("/set-product-status")
     public String setProductStatus(@RequestBody Map product) {
         Long id = (long) (int) product.get("id");
