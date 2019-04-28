@@ -91,24 +91,6 @@ public class AcquisitionController {
     }
 
     @CrossOrigin
-    @PostMapping("/set-product-status")
-    public String setProductStatus(@RequestBody Map product) {
-        Long id = (long) (int) product.get("id");
-        Status newStatus = Status.valueOf((String) product.get("status"));
-        Product prodToUpdate = productRepo.findById(id)
-                .orElse(null);
-        if (prodToUpdate != null) {
-            prodToUpdate.setStatus(newStatus);
-            productRepo.save(prodToUpdate);
-            System.out.println(logBase + "Status changed");
-            return "Status changed";
-        }
-        System.out.println(logBase + "Status change wasn't successful");
-        return "Status change wasn't successful";
-
-    }
-
-    @CrossOrigin
     @PostMapping("/finish-acquisition")
     public String finishAcquisition(@RequestBody Map userData) {
         Map result = new HashMap();
