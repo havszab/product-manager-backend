@@ -34,16 +34,7 @@ public class AcquisitionController {
     @Autowired
     ActionRepo actionRepo;
 
-    private final String logBase = "[CONTROLLER LOG: " + this.getClass() + "] - ";
-
-    @CrossOrigin
-    @GetMapping("/products")
-    public Map getAllProducts() {
-        Map result = new HashMap();
-        result.put("products", productRepo.findAll());
-        System.out.println(logBase + "All products provided.");
-        return result;
-    }
+    private final String logBase = new Date().toString() + "[CONTROLLER REPORT: " + this.getClass() + "] - ";
 
     @CrossOrigin
     @PostMapping("/save")
@@ -86,16 +77,17 @@ public class AcquisitionController {
     @CrossOrigin
     @GetMapping("/get-acquisition")
     public Map getAcquisitionByUser(@RequestParam String email) {
-        Map result = new HashMap();
+        Map response = new HashMap();
         try {
             User user = userRepo.findByEmail(email);
             Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
-            result.put("acquisition", acquisition);
-            System.out.println(logBase + "Acquisition request fulfilled for user: " + email);
+            response.put("success", true);
+            response.put("acquisition", acquisition);
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println(logBase + e);
+            response.put("success", false);
         }
-        return result;
+        return response;
     }
 
     @CrossOrigin
