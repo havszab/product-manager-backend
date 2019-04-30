@@ -90,13 +90,11 @@ public class AcquisitionController {
     public Map getAcquisitionByUser(@RequestParam String email) {
         Map response = new HashMap();
         try {
-            User user = userRepo.findByEmail(email);
-            Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
             response.put("success", true);
-            response.put("acquisition", acquisition);
+            response.put("acquisition", acquisitionService.getAcquisition(userService.getUserByEmail(email)));
         } catch (Exception e) {
-            System.out.println(logBase + e);
             response.put("success", false);
+            response.put("message", "Could fulfill acquisition request: " + e);
         }
         return response;
     }
