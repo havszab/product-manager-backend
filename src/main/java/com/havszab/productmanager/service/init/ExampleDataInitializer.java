@@ -1,4 +1,4 @@
-package com.havszab.productmanager.service;
+package com.havszab.productmanager.service.init;
 
 import com.havszab.productmanager.model.*;
 import com.havszab.productmanager.model.enums.CostType;

@@ -2,9 +2,8 @@ package com.havszab.productmanager.controller;
 
 import com.havszab.productmanager.model.*;
 import com.havszab.productmanager.model.enums.ActionColor;
-import com.havszab.productmanager.model.enums.Status;
 import com.havszab.productmanager.repositories.*;
-import com.havszab.productmanager.service.ItemPaymentService;
+import com.havszab.productmanager.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +37,21 @@ public class AcquisitionController {
     @Autowired
     ItemPaymentService itemPaymentService;
 
+    @Autowired
+    ProductService productService;
+
+    @Autowired
+    ProductCategoryService productCategoryService;
+
+    @Autowired
+    UnitCategoryService unitCategoryService;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    AcquisitionService acquisitionService;
+
     private final String logBase = new Date().toString() + "[CONTROLLER REPORT: " + this.getClass() + "] - ";
 
     @CrossOrigin
@@ -45,40 +59,26 @@ public class AcquisitionController {
     public Map saveProduct(@RequestBody Map prodToSave) {
         Map response = new HashMap();
         try {
-            String email = (String) prodToSave.get("email");
-            String name = (String) prodToSave.get("name");
-            Long price = Long.parseLong((String) prodToSave.get("price"));
+            User user = userService.getUserByEmail((String) prodToSave.get("email"));
+
+            String productCategoryName = (String) prodToSave.get("name");
+            Long itemPrice = Long.parseLong((String) prodToSave.get("price"));
             Long quantity = Long.parseLong((String) prodToSave.get("quantity"));
-            String unit = (String) prodToSave.get("unit");
             String description = (String) prodToSave.get("description");
-            ProductCategory cat = productCategoryRepo.findByProductName(name);
-            UnitCategory unitCategory = unitCategoryRepo.findByUnitName(unit);
 
-            if (cat == null) {
-                cat = new ProductCategory(name);
-                productCategoryRepo.save(cat);
-            }
-            if (unitCategory == null) {
-                unitCategory = new UnitCategory(unit);
-                unitCategoryRepo.save(unitCategory);
-            }
+            ProductCategory productCategory = productCategoryService.getByName(productCategoryName);
+            UnitCategory unitCategory = unitCategoryService.getUnitCategory((String) prodToSave.get("unit"));
+            Product product = productService.persistAndGetProduct(new Product(
+                    productCategory,
+                    unitCategory,
+                    quantity,
+                    itemPrice,
+                    description));
+            acquisitionService.addProduct(product, user);
 
-            Product product = new Product(cat, unitCategory, quantity, price, description);
-            productRepo.save(product);
-            User user = userRepo.findByEmail(email);
-            Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
-            Set<Product> currentProducts = acquisition.getProducts();
-            currentProducts.add(product);
-            acquisitionRepo.save(acquisition);
-            System.out.println(logBase + "Product saved to acquisition");
             response.put("success", true);
-            response.put("message", "Item " + name + " successfully added to acquisition!");
+            response.put("message", "Item " + productCategoryName + " successfully added to acquisition!");
         } catch (Exception e) {
-            try {
-                System.out.println(logBase + "Error during adding item to acquisition. Method: " + this.getClass().getMethod("saveProduct", Map.class) + " Error: " + e);
-            } catch (NoSuchMethodException e1) {
-                e1.printStackTrace();
-            }
             response.put("success", false);
             response.put("message", "Couldn\'t add item to acquisition!");
         }
@@ -114,9 +114,8 @@ public class AcquisitionController {
             HashSet<Product> productsToAdd = new HashSet<>(toFinish.getProducts());
             stock.getProducts().addAll(productsToAdd);
 
-            for (Product product : stock.getProducts()) {
-                product.setStatus(Status.IN_STOCK);
-            }
+            productService.setProductsStatusToIN_STOCK(productsToAdd);
+
             user.setStock(stock);
 
             int numOfItems = toFinish.getProducts().size();
@@ -153,6 +152,7 @@ public class AcquisitionController {
             acquisition.setProducts(acqProducts);
 
             itemPaymentService.persistAcquiredItemsAsPayment(products, user);
+            productService.setProductsStatusToIN_STOCK(products);
 
             Stock stock = stockRepo.findStockByOwner(user);
             Set<Product> stockProducts = stock.getProducts();
