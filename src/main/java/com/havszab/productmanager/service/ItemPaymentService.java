@@ -17,12 +17,8 @@ public class ItemPaymentService {
     ItemPaymentRepo itemPaymentRepo;
 
     public void persistAcquiredItemsAsPayment(Set<Product> acquiredProducts, User user) {
-        try {
-            for (Product product : acquiredProducts) {
-                itemPaymentRepo.save(new ItemPayment(product, new Date(), user));
-            }
-        } catch (Exception e) {
-            System.out.println(e);
+        for (Product product : acquiredProducts) {
+            itemPaymentRepo.save(new ItemPayment(product, new Date(), user));
         }
     }
 }

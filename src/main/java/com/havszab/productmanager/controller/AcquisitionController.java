@@ -1,8 +1,6 @@
 package com.havszab.productmanager.controller;
 
 import com.havszab.productmanager.model.*;
-import com.havszab.productmanager.model.enums.ActionColor;
-import com.havszab.productmanager.repositories.*;
 import com.havszab.productmanager.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,27 +10,6 @@ import java.util.*;
 
 @RestController
 public class AcquisitionController {
-
-    @Autowired
-    ProductRepo productRepo;
-
-    @Autowired
-    ProductCategoryRepo productCategoryRepo;
-
-    @Autowired
-    UnitCategoryRepo unitCategoryRepo;
-
-    @Autowired
-    AcquisitionRepo acquisitionRepo;
-
-    @Autowired
-    UserRepo userRepo;
-
-    @Autowired
-    StockRepo stockRepo;
-
-    @Autowired
-    ActionRepo actionRepo;
 
     @Autowired
     ItemPaymentService itemPaymentService;
@@ -51,8 +28,6 @@ public class AcquisitionController {
 
     @Autowired
     AcquisitionService acquisitionService;
-
-    private final String logBase = new Date().toString() + "[CONTROLLER REPORT: " + this.getClass() + "] - ";
 
     @CrossOrigin
     @PostMapping("/add-item")
@@ -91,7 +66,7 @@ public class AcquisitionController {
         Map response = new HashMap();
         try {
             response.put("success", true);
-            response.put("acquisition", acquisitionService.getAcquisition(userService.getUserByEmail(email)));
+            response.put("acquisition", acquisitionService.get(userService.getUserByEmail(email)));
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Could fulfill acquisition request: " + e);
@@ -104,30 +79,11 @@ public class AcquisitionController {
     public Map finishAcquisition(@RequestBody Map userData) {
         Map response = new HashMap();
         try {
-            String email = (String) userData.get("email");
-            User user = userRepo.findByEmail(email);
-
-            Acquisition toFinish = user.getAcquisition();
-            Stock stock = user.getStock();
-            HashSet<Product> productsToAdd = new HashSet<>(toFinish.getProducts());
-            stock.getProducts().addAll(productsToAdd);
-
-            productService.setProductsStatusToIN_STOCK(productsToAdd);
-
-            user.setStock(stock);
-
-            int numOfItems = toFinish.getProducts().size();
-            acquisitionRepo.removeAcquisitionByOwner(user);
-            Acquisition emptyAcquisition = new Acquisition(user);
-            acquisitionRepo.save(emptyAcquisition);
-            user.setAcquisition(emptyAcquisition);
-            userRepo.save(user);
-            System.out.println(logBase + "Acquisition finished!");
-            actionRepo.save(new Action(numOfItems + " products delivered to stock!", new Date(), user, ActionColor.BLUE));
+            acquisitionService.moveAllItemsToStock(userService.getUserByEmail((String) userData.get("email")));
             response.put("success", true);
-            response.put("message", numOfItems + " products delivered to stock!");
+            response.put("message", "Products delivered to stock!");
         } catch (Exception e) {
-            System.out.println(logBase + e);
+            System.out.println(e);
             response.put("success", false);
             response.put("message", "Acquisition finish failed!");
         }
@@ -139,29 +95,7 @@ public class AcquisitionController {
     public Map finishSelected(@RequestBody Map requestData) {
         Map response = new HashMap();
         try {
-            User user = userRepo.findByEmail((String) requestData.get("email"));
-            List<LinkedHashMap> rawProducts = (ArrayList) requestData.get("products");
-            Set<Product> products = mapRequestDataToProductSet(rawProducts);
-
-            Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
-            Set<Product> acqProducts = acquisition.getProducts();
-
-            acqProducts.removeAll(products);
-            acquisition.setProducts(acqProducts);
-
-            itemPaymentService.persistAcquiredItemsAsPayment(products, user);
-            productService.setProductsStatusToIN_STOCK(products);
-
-            Stock stock = stockRepo.findStockByOwner(user);
-            Set<Product> stockProducts = stock.getProducts();
-            stockProducts.addAll(products);
-            stock.setProducts(stockProducts);
-
-            acquisitionRepo.save(acquisition);
-            stockRepo.save(stock);
-
-            actionRepo.save(new Action(products.size() + " products delivered to stock", new Date(), user, ActionColor.BLUE));
-
+            acquisitionService.moveSelectedItemsToStock(userService.getUserByEmail((String) requestData.get("email")), mapRequestDataToProductSet( (ArrayList) requestData.get("products")));
             response.put("success", true);
             response.put("message", "Items moved to stock successfully");
         } catch (Exception e) {
@@ -177,18 +111,11 @@ public class AcquisitionController {
     public Map removeSelectedItems(@RequestBody Map requestData) {
         Map response = new HashMap();
         try {
-            User user = userRepo.findByEmail((String) requestData.get("email"));
-            List<LinkedHashMap> rawProducts = (ArrayList) requestData.get("products");
-            Set<Product> products = mapRequestDataToProductSet(rawProducts);
 
-            Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
-            Set<Product> acqProducts = acquisition.getProducts();
-
-            acqProducts.removeAll(products);
-            acquisition.setProducts(acqProducts);
-
-            acquisitionRepo.save(acquisition);
-
+            acquisitionService.removeItems(
+                    userService.getUserByEmail((String) requestData.get("email")),
+                    mapRequestDataToProductSet((ArrayList) requestData.get("products"))
+            );
             response.put("success", true);
             response.put("message", "Items removed successfully");
         } catch (Exception e) {
@@ -202,10 +129,8 @@ public class AcquisitionController {
     private Set<Product> mapRequestDataToProductSet(List<LinkedHashMap> unmappedList) {
         Set<Product> products = new HashSet<>();
         for (LinkedHashMap prod : unmappedList) {
-            products.add(productRepo.getOne((long) (int) prod.get("id")));
+            products.add(productService.getById((long) (int) prod.get("id")));
         }
         return products;
     }
-
-
 }
