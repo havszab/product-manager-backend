@@ -76,26 +76,28 @@ public class ExampleDataInitializer {
         productCategories.add(new ProductCategory("carrot"));
 
 
-
         for (ProductCategory cat : productCategories) {
             productCategoryRepo.save(cat);
         }
 
         Set<SoldProduct> soldProducts = sales.getProducts();
         Random rand = new Random();
-        for (int i = 0; i < 120; i++) {
-            for (int j = 0; j < 3; j++) {
-            Date sellingDate = new GregorianCalendar(2019, 0, i).getTime();
+        for (int i = 0; i < 31; i++) {
+            for (int j = 0; j < 12; j++) {
+                for (int k = 0; k < 3; k++) {
+                    Date sellingDate = new GregorianCalendar(2017 + k, j, i).getTime();
 
-            Long value = (long) rand.nextInt(30000) + 15000;
-            Long income = (long) rand.nextInt(60000) + 20000;
+                    Long value = (long) rand.nextInt(30000) + 15000;
+                    Long income = (long) rand.nextInt(60000) + 20000;
 
-            Long quantity = (long) rand.nextInt(50) + 30;
-            Long profit = income - value;
+                    Long quantity = (long) rand.nextInt(50) + 30;
+                    Long profit = income - value;
 
-            SoldProduct soldProduct = new SoldProduct(productCategories.get(rand.nextInt(productCategories.size())), chest, quantity, value, "", sellingDate, income, profit);
-            soldProducts.add(soldProduct);
-            soldProductRepo.save(soldProduct);
+                    SoldProduct soldProduct = new SoldProduct(productCategories.get(rand.nextInt(productCategories.size())), chest, quantity, value, "", sellingDate, income, profit);
+                    soldProducts.add(soldProduct);
+                    soldProductRepo.save(soldProduct);
+
+                }
             }
         }
         sales.setProducts(soldProducts);
@@ -129,6 +131,6 @@ public class ExampleDataInitializer {
 
         employeeRepo.save(employee);
 
-        costRepo.save(new Cost(employee.getFirstName() + " " + employee.getLastName()+ "'s salary", CostType.MONTHLY, employee.getSalary(), user));
+        costRepo.save(new Cost(employee.getFirstName() + " " + employee.getLastName() + "'s salary", CostType.MONTHLY, employee.getSalary(), user));
     }
 }

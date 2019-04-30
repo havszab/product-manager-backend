@@ -38,23 +38,28 @@ public class CostController {
 
     @CrossOrigin
     @PostMapping("/add-cost")
-    public String addCost(@RequestBody Map costData) {
+    public Map addCost(@RequestBody Map costData) {
+        Map response = new HashMap();
         try {
             String title = (String) costData.get("name");
             CostType type = CostType.valueOf((String) costData.get("type"));
             Double cost = Double.parseDouble((String) costData.get("cost"));
             String email = (String) costData.get("email");
             costRepo.save(new Cost(title, type, cost, userRepo.findByEmail(email)));
+            response.put("success", true);
+            response.put("message", "Cost registered successfully!");
         } catch (Exception e) {
             System.out.println(e);
-            return "Couldn't save cost.";
+            response.put("success", false);
+            response.put("message", "Cost registration was unsuccessful!");
         }
-        return "Cost save successfully";
+        return response;
     }
 
     @CrossOrigin
     @PostMapping("set-cost")
-    public String setCost(@RequestBody Map costData) {
+    public Map setCost(@RequestBody Map costData) {
+        Map response = new HashMap();
         try {
             Long id = (long) (int) costData.get("id");
             String title = (String) costData.get("name");
@@ -63,22 +68,28 @@ public class CostController {
             String email = (String) costData.get("email");
             String dateInLong = (String) costData.get("date");
             Date date = new Date(Long.parseLong(dateInLong));
+
             Cost costToSet = costRepo.getOne(id);
             costToSet.setName(title);
             costToSet.setType(type);
             costToSet.setCost(cost);
             costToSet.setPayedLastDate(date);
             costRepo.save(costToSet);
+
+            response.put("success", true);
+            response.put("message", "Cost set successfully!");
         } catch (Exception e) {
             System.out.println(e);
-            return "Couldn't save cost.";
+            response.put("success", true);
+            response.put("message", "Could not edit cost!");
         }
-        return "Cost save successfully";
+        return response;
     }
 
     @CrossOrigin
     @PostMapping("mark-cost-as-paid")
-    public String marCostAsPaid(@RequestBody Map request) {
+    public Map marCostAsPaid(@RequestBody Map request) {
+        Map response = new HashMap();
         try {
             Long id = (long) (int) request.get("id");
             String email = (String) request.get("email");
@@ -90,11 +101,15 @@ public class CostController {
                     new Date(),
                     userRepo.findByEmail(email),
                     ActionColor.RED));
+            response.put("success", true);
+            response.put("message", paidCost.getName() + " marked as payed. Amount: " + paidCost.getCost() + " HUF");
         } catch (Exception e) {
             System.out.println(e);
-            return e.toString();
+            response.put("success", false);
+            response.put("message", "Could not mark this cost as paid, try again later!");
+
         }
-        return "Cost marked as paid";
+        return response;
     }
 
     @CrossOrigin

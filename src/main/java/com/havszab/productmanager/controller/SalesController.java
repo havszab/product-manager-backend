@@ -42,7 +42,8 @@ public class SalesController {
 
     @CrossOrigin
     @PostMapping("sell-item")
-    public String sellItem(@RequestBody Map request) {
+    public Map sellItem(@RequestBody Map request) {
+        Map response = new HashMap();
         try {
             Long productId = (long) (int) request.get("prodToSell");
             Product product = productRepo.findById(productId)
@@ -88,11 +89,21 @@ public class SalesController {
             sales.getProducts().add(soldProduct);
             salesRepo.save(sales);
 
+            response.put("success", true);
+            response.put("message", quantity +
+                    " " +
+                    product.getUnitCategory().getUnitName() +
+                    " of " +
+                    product.getProductCategory().getProductName() +
+                    " sold for " +
+                    (int) value + "HUF.");
+
         } catch (Exception e) {
             System.out.println(e);
-            return "fail";
+            response.put("success", false);
+            response.put("message", "Could not sell item successfully!");
         }
-        return "success";
+        return response;
     }
 
     @CrossOrigin

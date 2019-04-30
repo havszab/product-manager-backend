@@ -9,14 +9,14 @@ import java.util.Date;
 @Setter
 @Getter
 @Entity
-public class Payment {
+public class CostPayment {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column
-    private double amount;
+    @OneToOne
+    private Cost cost;
 
     @Column
     private Date date;
@@ -24,7 +24,7 @@ public class Payment {
     @OneToOne
     private User owner;
 
-    public Payment() {
+    public CostPayment() {
     }
 
 }

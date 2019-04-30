@@ -4,6 +4,7 @@ import com.havszab.productmanager.model.*;
 import com.havszab.productmanager.model.enums.ActionColor;
 import com.havszab.productmanager.model.enums.Status;
 import com.havszab.productmanager.repositories.*;
+import com.havszab.productmanager.service.ItemPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,27 +35,34 @@ public class AcquisitionController {
     @Autowired
     ActionRepo actionRepo;
 
+    @Autowired
+    ItemPaymentService itemPaymentService;
+
     private final String logBase = new Date().toString() + "[CONTROLLER REPORT: " + this.getClass() + "] - ";
 
     @CrossOrigin
-    @PostMapping("/save")
-    public String saveProduct(@RequestBody Map prodToSave) {
-        String email = (String) prodToSave.get("email");
-        String name = (String) prodToSave.get("name");
-        Long price = Long.parseLong((String) prodToSave.get("price"));
-        Long quantity = Long.parseLong((String) prodToSave.get("quantity"));
-        String unit = (String) prodToSave.get("unit");
-        String description = (String) prodToSave.get("description");
-        ProductCategory cat = productCategoryRepo.findByProductName(name);
-        UnitCategory unitCategory = unitCategoryRepo.findByUnitName(unit);
-
-        if (cat == null)
-            cat = new ProductCategory(name);
-        if (unitCategory == null)
-            unitCategory = new UnitCategory(unit);
+    @PostMapping("/add-item")
+    public Map saveProduct(@RequestBody Map prodToSave) {
+        Map response = new HashMap();
         try {
-            productCategoryRepo.save(cat);
-            unitCategoryRepo.save(unitCategory);
+            String email = (String) prodToSave.get("email");
+            String name = (String) prodToSave.get("name");
+            Long price = Long.parseLong((String) prodToSave.get("price"));
+            Long quantity = Long.parseLong((String) prodToSave.get("quantity"));
+            String unit = (String) prodToSave.get("unit");
+            String description = (String) prodToSave.get("description");
+            ProductCategory cat = productCategoryRepo.findByProductName(name);
+            UnitCategory unitCategory = unitCategoryRepo.findByUnitName(unit);
+
+            if (cat == null) {
+                cat = new ProductCategory(name);
+                productCategoryRepo.save(cat);
+            }
+            if (unitCategory == null) {
+                unitCategory = new UnitCategory(unit);
+                unitCategoryRepo.save(unitCategory);
+            }
+
             Product product = new Product(cat, unitCategory, quantity, price, description);
             productRepo.save(product);
             User user = userRepo.findByEmail(email);
@@ -63,15 +71,18 @@ public class AcquisitionController {
             currentProducts.add(product);
             acquisitionRepo.save(acquisition);
             System.out.println(logBase + "Product saved to acquisition");
+            response.put("success", true);
+            response.put("message", "Item " + name + " successfully added to acquisition!");
         } catch (Exception e) {
             try {
                 System.out.println(logBase + "Error during adding item to acquisition. Method: " + this.getClass().getMethod("saveProduct", Map.class) + " Error: " + e);
             } catch (NoSuchMethodException e1) {
                 e1.printStackTrace();
             }
-            return "Couldn't save item";
+            response.put("success", false);
+            response.put("message", "Couldn\'t add item to acquisition!");
         }
-        return "Save successful";
+        return response;
     }
 
     @CrossOrigin
@@ -92,8 +103,8 @@ public class AcquisitionController {
 
     @CrossOrigin
     @PostMapping("/finish-acquisition")
-    public String finishAcquisition(@RequestBody Map userData) {
-        Map result = new HashMap();
+    public Map finishAcquisition(@RequestBody Map userData) {
+        Map response = new HashMap();
         try {
             String email = (String) userData.get("email");
             User user = userRepo.findByEmail(email);
@@ -114,15 +125,16 @@ public class AcquisitionController {
             acquisitionRepo.save(emptyAcquisition);
             user.setAcquisition(emptyAcquisition);
             userRepo.save(user);
-            System.out.println(logBase + "Acquisition finished");
-            actionRepo.save(new Action(numOfItems + " products delivered to stock", new Date(), user, ActionColor.BLUE));
-            return "Acquisition finished";
+            System.out.println(logBase + "Acquisition finished!");
+            actionRepo.save(new Action(numOfItems + " products delivered to stock!", new Date(), user, ActionColor.BLUE));
+            response.put("success", true);
+            response.put("message", numOfItems + " products delivered to stock!");
         } catch (Exception e) {
-            System.out.println(e);
-            result.put("success", false);
+            System.out.println(logBase + e);
+            response.put("success", false);
+            response.put("message", "Acquisition finish failed!");
         }
-        System.out.println(logBase + "Acquisition could not finish");
-        return "Acquisition could not finish";
+        return response;
     }
 
     @CrossOrigin
@@ -139,6 +151,8 @@ public class AcquisitionController {
 
             acqProducts.removeAll(products);
             acquisition.setProducts(acqProducts);
+
+            itemPaymentService.persistAcquiredItemsAsPayment(products, user);
 
             Stock stock = stockRepo.findStockByOwner(user);
             Set<Product> stockProducts = stock.getProducts();

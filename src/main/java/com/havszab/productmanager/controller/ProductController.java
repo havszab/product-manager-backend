@@ -1,7 +1,9 @@
 package com.havszab.productmanager.controller;
 
+import com.havszab.productmanager.model.Product;
 import com.havszab.productmanager.model.ProductCategory;
 import com.havszab.productmanager.model.UnitCategory;
+import com.havszab.productmanager.model.User;
 import com.havszab.productmanager.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -120,5 +122,52 @@ public class ProductController {
         return response;
     }
 
+    @CrossOrigin
+    @GetMapping("get-monthly-sold-products")
+    public Map getMonthlySoldProducts(@RequestParam String from, @RequestParam String to, @RequestParam String email) {
+        Map response = new HashMap();
+
+        Date dateFrom = new Date(Long.parseLong(from));
+        Date dateTo = new Date(Long.parseLong(to));
+
+        User user = userRepo.findByEmail(email);
+        response.put("result", soldProductRepo.getMonthlySalesByOwner(dateFrom, dateTo, user.getId()));
+
+        return response;
+    }
+
+    @CrossOrigin
+    @PostMapping("/edit-item")
+    public Map editAcquisitionItem(@RequestBody Map prodToEdit) {
+        Map response = new HashMap();
+        try {
+            String name = (String) prodToEdit.get("name");
+            Long price = Long.parseLong((String) prodToEdit.get("price"));
+            Long quantity = (long)(int) prodToEdit.get("quantity");
+            String unit = (String) prodToEdit.get("unit");
+            String description = (String) prodToEdit.get("description");
+            Long id = (long) (int) prodToEdit.get("id");
+
+            ProductCategory cat = productCategoryRepo.findByProductName(name);
+            UnitCategory unitCategory = unitCategoryRepo.findByUnitName(unit);
+
+            Product product = productRepo.getOne(id);
+
+            product.setProductCategory(cat);
+            product.setQuantity(quantity);
+            product.setUnitCategory(unitCategory);
+            product.setItemPrice(price);
+
+            productRepo.save(product);
+
+            response.put("success", true);
+            response.put("message", "Item successfully edited!");
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("success", false);
+            response.put("message", "Could not edit item!");
+        }
+        return response;
+    }
 
 }
