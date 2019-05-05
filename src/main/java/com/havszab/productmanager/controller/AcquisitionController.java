@@ -11,30 +11,31 @@ import java.util.*;
 @RestController
 public class AcquisitionController {
 
-    @Autowired
-    ItemPaymentService itemPaymentService;
+    private final ProductService productService;
+
+    private final ProductCategoryService productCategoryService;
+
+    private final UnitCategoryService unitCategoryService;
+
+    private final UserService userService;
+
+    private final AcquisitionService acquisitionService;
 
     @Autowired
-    ProductService productService;
-
-    @Autowired
-    ProductCategoryService productCategoryService;
-
-    @Autowired
-    UnitCategoryService unitCategoryService;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    AcquisitionService acquisitionService;
+    public AcquisitionController(ProductService productService, ProductCategoryService productCategoryService, UnitCategoryService unitCategoryService, UserService userService, AcquisitionService acquisitionService) {
+        this.productService = productService;
+        this.productCategoryService = productCategoryService;
+        this.unitCategoryService = unitCategoryService;
+        this.userService = userService;
+        this.acquisitionService = acquisitionService;
+    }
 
     @CrossOrigin
     @PostMapping("/add-item")
     public Map saveProduct(@RequestBody Map prodToSave) {
         Map response = new HashMap();
         try {
-            User user = userService.getUserByEmail((String) prodToSave.get("email"));
+            User user = userService.getByEmail((String) prodToSave.get("email"));
 
             String productCategoryName = (String) prodToSave.get("name");
             Long itemPrice = Long.parseLong((String) prodToSave.get("price"));
@@ -66,7 +67,7 @@ public class AcquisitionController {
         Map response = new HashMap();
         try {
             response.put("success", true);
-            response.put("acquisition", acquisitionService.get(userService.getUserByEmail(email)));
+            response.put("acquisition", acquisitionService.get(userService.getByEmail(email)));
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Could fulfill acquisition request: " + e);
@@ -79,7 +80,7 @@ public class AcquisitionController {
     public Map finishAcquisition(@RequestBody Map userData) {
         Map response = new HashMap();
         try {
-            acquisitionService.moveAllItemsToStock(userService.getUserByEmail((String) userData.get("email")));
+            acquisitionService.moveAllItemsToStock(userService.getByEmail((String) userData.get("email")));
             response.put("success", true);
             response.put("message", "Products delivered to stock!");
         } catch (Exception e) {
@@ -95,7 +96,7 @@ public class AcquisitionController {
     public Map finishSelected(@RequestBody Map requestData) {
         Map response = new HashMap();
         try {
-            acquisitionService.moveSelectedItemsToStock(userService.getUserByEmail((String) requestData.get("email")), mapRequestDataToProductSet( (ArrayList) requestData.get("products")));
+            acquisitionService.moveSelectedItemsToStock(userService.getByEmail((String) requestData.get("email")), mapRequestDataToProductSet( (ArrayList) requestData.get("products")));
             response.put("success", true);
             response.put("message", "Items moved to stock successfully");
         } catch (Exception e) {
@@ -113,7 +114,7 @@ public class AcquisitionController {
         try {
 
             acquisitionService.removeItems(
-                    userService.getUserByEmail((String) requestData.get("email")),
+                    userService.getByEmail((String) requestData.get("email")),
                     mapRequestDataToProductSet((ArrayList) requestData.get("products"))
             );
             response.put("success", true);

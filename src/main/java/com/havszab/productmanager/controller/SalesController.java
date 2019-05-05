@@ -3,6 +3,8 @@ package com.havszab.productmanager.controller;
 import com.havszab.productmanager.model.*;
 import com.havszab.productmanager.model.enums.ActionColor;
 import com.havszab.productmanager.repositories.*;
+import com.havszab.productmanager.service.SalesService;
+import com.havszab.productmanager.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +12,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
+@CrossOrigin
 @RestController
 public class SalesController {
 
@@ -30,6 +33,12 @@ public class SalesController {
 
     @Autowired
     ActionRepo actionRepo;
+
+    @Autowired
+    private SalesService salesService;
+
+    @Autowired
+    private UserService userService;
 
     @CrossOrigin
     @PostMapping("get-sales")
@@ -79,7 +88,6 @@ public class SalesController {
                 Set<Product> stockProducts = stockRepo.findStockByOwner(user).getProducts();
                 stockProducts.remove(product);
                 stockRepo.save(stockRepo.findStockByOwner(user));
-                productRepo.delete(product);
             } else {
                 product.setQuantity(product.getQuantity() - quantity);
                 product.setItemPrice(product.getItemPrice() - value);
@@ -136,4 +144,18 @@ public class SalesController {
         return response;
     }
 
+    @GetMapping("get-income")
+    public Map getIncomeByYear (@RequestParam int year, @RequestParam String email) {
+        Map response = new HashMap();
+        try {
+            response.put("success", true);
+            response.put("income", salesService.getIncomeByYear(year, userService.getByEmail(email)));
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("success", false);
+            response.put("error", e);
+            throw e;
+        }
+        return response;
+    }
 }

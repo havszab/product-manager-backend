@@ -27,4 +27,9 @@ public class CostPayment {
     public CostPayment() {
     }
 
+    public CostPayment(Cost cost, Date date, User owner) {
+        this.cost = cost;
+        this.date = date;
+        this.owner = owner;
+    }
 }

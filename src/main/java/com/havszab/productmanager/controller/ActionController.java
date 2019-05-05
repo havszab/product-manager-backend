@@ -1,7 +1,7 @@
 package com.havszab.productmanager.controller;
 
-import com.havszab.productmanager.repositories.ActionRepo;
-import com.havszab.productmanager.repositories.UserRepo;
+import com.havszab.productmanager.service.ActionService;
+import com.havszab.productmanager.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,18 +14,23 @@ import java.util.Map;
 @RestController
 public class ActionController {
 
-    @Autowired
-    private UserRepo userRepo;
+
+    private final ActionService actionService;
+
+    private final UserService userService;
 
     @Autowired
-    private ActionRepo actionRepo;
+    public ActionController(ActionService actionService, UserService userService) {
+        this.actionService = actionService;
+        this.userService = userService;
+    }
 
     @CrossOrigin
     @GetMapping("get-recent-10-actions")
     public Map getRecent10Actions(@RequestParam String email) {
         Map result = new HashMap();
         try {
-            result.put("actions", actionRepo.getTop10ByOwnerOrderByDateDesc(userRepo.findByEmail(email)));
+            result.put("actions", actionService.getTop10(userService.getByEmail(email)));
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -37,7 +42,7 @@ public class ActionController {
     public Map getRecent5Actions(@RequestParam String email) {
         Map result = new HashMap();
         try {
-        result.put("actions", actionRepo.getTop5ByOwnerOrderByDateDesc(userRepo.findByEmail(email)));
+            result.put("actions", actionService.getTop5(userService.getByEmail(email)));
         } catch (Exception e) {
             System.out.println(e);
         }

@@ -13,14 +13,21 @@ import java.util.Set;
 @Component
 public class AcquisitionService {
 
-    @Autowired
-    AcquisitionRepo acquisitionRepo;
+    private final AcquisitionRepo acquisitionRepo;
+
+    private final ItemPaymentService itemPaymentService;
+
+    private final StockService stockService;
+
+    private final ActionService actionService;
 
     @Autowired
-    StockService stockService;
-
-    @Autowired
-    ActionService actionService;
+    public AcquisitionService(AcquisitionRepo acquisitionRepo, ItemPaymentService itemPaymentService, StockService stockService, ActionService actionService) {
+        this.acquisitionRepo = acquisitionRepo;
+        this.itemPaymentService = itemPaymentService;
+        this.stockService = stockService;
+        this.actionService = actionService;
+    }
 
     public void addProduct(Product product, User user) {
         Acquisition acquisition = acquisitionRepo.findAcquisitionByOwner(user);
@@ -51,6 +58,7 @@ public class AcquisitionService {
         Acquisition acquisition = get(user);
         Stock stock = stockService.getStock(user);
         stockService.addProductsToStock(stock, products);
+        itemPaymentService.persistAcquiredItemsAsPayment(user, products);
         actionService.saveAcquisitionFinishAction(products.size(), user);
         removeItems(acquisition, products); //after that, products will be empty
     }

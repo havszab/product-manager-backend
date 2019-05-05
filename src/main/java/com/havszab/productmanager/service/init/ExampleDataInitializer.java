@@ -19,7 +19,10 @@ public class ExampleDataInitializer {
                                   SalesRepo salesRepo,
                                   SoldProductRepo soldProductRepo,
                                   CostRepo costRepo,
-                                  EmployeeRepo employeeRepo) {
+                                  EmployeeRepo employeeRepo,
+                                  InvestmentRepo investmentRepo,
+                                  ItemPaymentRepo itemPaymentRepo,
+                                  CostPaymentRepo costPaymentRepo) {
         User user = new User("havszab@gmail.com", "admin");
         ProductCategory apple = new ProductCategory("apple");
         UnitCategory chest = new UnitCategory("chest");
@@ -80,44 +83,9 @@ public class ExampleDataInitializer {
             productCategoryRepo.save(cat);
         }
 
-        Set<SoldProduct> soldProducts = sales.getProducts();
-        Random rand = new Random();
-        for (int i = 0; i < 31; i++) {
-            for (int j = 0; j < 12; j++) {
-                for (int k = 0; k < 3; k++) {
-                    Date sellingDate = new GregorianCalendar(2017 + k, j, i).getTime();
-
-                    Long value = (long) rand.nextInt(30000) + 15000;
-                    Long income = (long) rand.nextInt(60000) + 20000;
-
-                    Long quantity = (long) rand.nextInt(50) + 30;
-                    Long profit = income - value;
-
-                    SoldProduct soldProduct = new SoldProduct(productCategories.get(rand.nextInt(productCategories.size())), chest, quantity, value, "", sellingDate, income, profit);
-                    soldProducts.add(soldProduct);
-                    soldProductRepo.save(soldProduct);
-
-                }
-            }
-        }
-        sales.setProducts(soldProducts);
-        salesRepo.save(sales);
-
-        costRepo.save(new Cost("Season trade ticket", CostType.ANNUAL, 450000, user));
-        costRepo.save(new Cost("Insurance [Truck]", CostType.ANNUAL, 160000, user));
-        costRepo.save(new Cost("Insurance [Car]", CostType.ANNUAL, 50000, user));
-        costRepo.save(new Cost("Seasonal service [Truck]", CostType.ANNUAL, 100000, user));
-
-        costRepo.save(new Cost("Car leasing cost", CostType.MONTHLY, 120000, user));
-        costRepo.save(new Cost("Accountant", CostType.MONTHLY, 50000, user));
-
-        costRepo.save(new Cost("Cafeteria", CostType.WEEKLY, 50000, user));
-        costRepo.save(new Cost("Market entry ticket", CostType.WEEKLY, 10000, user));
-
-        costRepo.save(new Cost("Car acquisition", CostType.OTHER, 2450000, user));
-        costRepo.save(new Cost("Car administration", CostType.OTHER, 75000, user));
-        costRepo.save(new Cost("Notebook acquisition", CostType.OTHER, 450000, user));
-        costRepo.save(new Cost("Forklift acquisition", CostType.OTHER, 1250000, user));
+        List<Cost> annualCosts = new ArrayList<>();
+        List<Cost> monthlyCosts = new ArrayList<>();
+        List<Cost> weeklyCosts = new ArrayList<>();
 
         Employee employee = new Employee(
                 "Havalda",
@@ -132,5 +100,100 @@ public class ExampleDataInitializer {
         employeeRepo.save(employee);
 
         costRepo.save(new Cost(employee.getFirstName() + " " + employee.getLastName() + "'s salary", CostType.MONTHLY, employee.getSalary(), user));
+
+        costRepo.save(new Cost("Season trade ticket", CostType.ANNUAL, 450000, user));
+        costRepo.save(new Cost("Insurance [Truck]", CostType.ANNUAL, 160000, user));
+        costRepo.save(new Cost("Insurance [Car]", CostType.ANNUAL, 50000, user));
+        costRepo.save(new Cost("Seasonal service [Truck]", CostType.ANNUAL, 100000, user));
+
+
+        costRepo.save(new Cost("Car leasing cost", CostType.MONTHLY, 120000, user));
+        costRepo.save(new Cost("Accountant", CostType.MONTHLY, 50000, user));
+        costRepo.save(new Cost("Fuel", CostType.MONTHLY, 500000, user));
+
+
+        costRepo.save(new Cost("Cafeteria", CostType.WEEKLY, 50000, user));
+        costRepo.save(new Cost("Market entry ticket", CostType.WEEKLY, 10000, user));
+
+        costRepo.save(new Cost("Car administration", CostType.OTHER, 75000, user));
+        costRepo.save(new Cost("Notebook acquisition", CostType.OTHER, 450000, user));
+
+        for (Cost cost : costRepo.findAllByOwnerOrderByIdDesc(user)) {
+            if (cost.getType().equals(CostType.ANNUAL)) {
+                annualCosts.add(cost);
+            } else if (cost.getType().equals(CostType.MONTHLY)) {
+                monthlyCosts.add(cost);
+            } else if (cost.getType().equals(CostType.WEEKLY)) {
+                weeklyCosts.add(cost);
+            }
+        }
+
+        Set<SoldProduct> soldProducts = sales.getProducts();
+        Random rand = new Random();
+        for (int i = 0; i < 31; i++) {
+            for (int j = 0; j < 12; j++) {
+                for (int k = 0; k < 4; k++) {
+                    Date sellingDate = new GregorianCalendar(2016 + k, j, i).getTime();
+                    if (sellingDate.compareTo(new Date()) > 0) break;
+
+                    if (i == 0)
+                        for (Cost cost : monthlyCosts) {
+                            cost.setCost(cost.getCost() + rand.nextInt(10000) - 5000);
+                            costRepo.save(cost);
+                            costPaymentRepo.save(new CostPayment(cost, sellingDate, user));
+                        }
+                    if (i == 0 && j == 0)
+                        for (Cost cost : annualCosts) {
+                            cost.setCost(cost.getCost() + rand.nextInt(10000) - 5000);
+                            costRepo.save(cost);
+                            costPaymentRepo.save(new CostPayment(cost, sellingDate, user));
+                        }
+                    if (i % 7 == 0)
+                        for (Cost cost : weeklyCosts) {
+                            cost.setCost(cost.getCost() + rand.nextInt(1000));
+                            costPaymentRepo.save(new CostPayment(cost, sellingDate, user));
+                        }
+
+                    Double value = (double) rand.nextInt(30000) + 15000;
+                    Long income = (long) rand.nextInt(60000) + 20000;
+
+                    Long quantity = (long) rand.nextInt(50) + 30;
+                    Double profit = income - value;
+
+                    for (int l = 0; l < 4 + k; l++) {
+                        ProductCategory randomCategory = productCategories.get(rand.nextInt(productCategories.size()));
+                        Product product = new Product(randomCategory, chest, quantity, value, "");
+                        productRepo.save(product);
+                        ItemPayment itemPayment = new ItemPayment(product, sellingDate, user);
+                        itemPaymentRepo.save(itemPayment);
+                        SoldProduct soldProduct = new SoldProduct(randomCategory, chest, quantity, value, "", sellingDate, income, profit);
+                        soldProducts.add(soldProduct);
+                        soldProductRepo.save(soldProduct);
+                    }
+
+                }
+            }
+        }
+        sales.setProducts(soldProducts);
+        salesRepo.save(sales);
+
+
+        investmentRepo.save(new Investment(
+                        "Forklift",
+                        2300000L,
+                        "Red Toyota forklift. Year of production: 2009. ",
+                        user,
+                        new Date()
+                )
+        );
+
+        investmentRepo.save(new Investment(
+                        "Truck [Volvo]",
+                        12000000L,
+                        "MAN truck to deliver items to stock. Number: EFJ-324. Year of production: 1995. MAN truck to deliver items to stock. Number: EFJ-324. Year of production: 1995. MAN truck to deliver items to stock. Number: EFJ-324. Year of production: 1995.",
+                        user,
+                        new Date()
+                )
+        );
     }
 }

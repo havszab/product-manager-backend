@@ -8,10 +8,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserService {
 
-    @Autowired
-    UserRepo userRepo;
+    private final UserRepo userRepo;
 
-    public User getUserByEmail(String email) {
+    @Autowired
+    public UserService(UserRepo userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    public User getByEmail(String email) {
         return userRepo.findByEmail(email);
     }
 }
+

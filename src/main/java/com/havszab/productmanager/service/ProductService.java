@@ -11,8 +11,12 @@ import java.util.Set;
 @Component
 public class ProductService {
 
+    private final ProductRepo productRepo;
+
     @Autowired
-    ProductRepo productRepo;
+    public ProductService(ProductRepo productRepo) {
+        this.productRepo = productRepo;
+    }
 
     public void setProductsStatusToIN_STOCK (Set<Product> products) {
         for (Product product : products) {
