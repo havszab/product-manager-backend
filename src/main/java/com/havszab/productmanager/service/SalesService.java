@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -19,5 +20,9 @@ public class SalesService {
                 new GregorianCalendar(year, 0, 1).getTime(),
                 new GregorianCalendar(year, 11,31).getTime(),
                 user.getId());
+    }
+
+    public List<Map> getIncomesOfYears (User user) {
+        return salesRepo.getIncomesOfYears(user);
     }
 }

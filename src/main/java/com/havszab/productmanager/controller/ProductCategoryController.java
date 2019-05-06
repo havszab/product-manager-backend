@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@CrossOrigin
 @Repository
 public class ProductCategoryController {
 
     @Autowired
     ProductCategoryRepo productCategoryRepo;
 
-    @CrossOrigin
     @PostMapping("set-product-category")
     public Map setProductCategory(@RequestBody Map data) {
         Map response = new HashMap();
@@ -33,7 +33,6 @@ public class ProductCategoryController {
         return response;
     }
 
-    @CrossOrigin
     @DeleteMapping("delete-product-category")
     public Map deleteProductCategory(@RequestParam int id) {
         Map response = new HashMap();

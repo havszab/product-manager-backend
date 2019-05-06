@@ -119,27 +119,17 @@ public class SalesController {
     public Map getIncomePerDays(@RequestParam String dateFrom, @RequestParam String dateTo, @RequestParam String email) {
         Map response = new HashMap();
         try {
-            LocalDate from = new Date(Long.parseLong(dateFrom)).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate to = new Date(Long.parseLong(dateTo)).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            int beginningDay = from.getDayOfMonth();
-            int endDay = to.getDayOfMonth();
+            Date from = new Date(Long.parseLong(dateFrom));
+            Date to = new Date(Long.parseLong(dateTo));
 
-            Long id = userRepo.findByEmail(email).getId();
-
-            List<Object> result = new ArrayList<>();
-
-            while (beginningDay != endDay + 1) {
-                Date fromDay = new GregorianCalendar(from.getYear(), from.getMonthValue() - 1, beginningDay).getTime();
-                Date toDay = new GregorianCalendar(from.getYear(), from.getMonthValue() - 1, beginningDay + 1).getTime();
-                result.add(soldProductRepo.getSumIncomeByDay(fromDay, toDay, id));
-                beginningDay++;
-            }
             response.put("success", true);
-            response.put("incomePerDays", result);
+            response.put("incomePerDays", soldProductRepo.getSumIncomeByDay(from, to, userService.getByEmail(email)));
         } catch (Exception e) {
             System.out.println(e);
+
             response.put("success", false);
             response.put("error", e);
+            throw e;
         }
         return response;
     }
@@ -153,7 +143,22 @@ public class SalesController {
         } catch (Exception e) {
             System.out.println(e);
             response.put("success", false);
-            response.put("error", e);
+            response.put("message", e);
+            throw e;
+        }
+        return response;
+    }
+
+    @GetMapping("get-incomes-of-years")
+    public Map getIncomesOfYears ( @RequestParam String email) {
+        Map response = new HashMap();
+        try {
+            response.put("success", true);
+            response.put("incomes", salesService.getIncomesOfYears(userService.getByEmail(email)));
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("success", false);
+            response.put("message", e);
             throw e;
         }
         return response;

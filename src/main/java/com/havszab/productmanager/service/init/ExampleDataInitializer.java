@@ -78,7 +78,6 @@ public class ExampleDataInitializer {
         productCategories.add(new ProductCategory("turnip"));
         productCategories.add(new ProductCategory("carrot"));
 
-
         for (ProductCategory cat : productCategories) {
             productCategoryRepo.save(cat);
         }
@@ -106,7 +105,6 @@ public class ExampleDataInitializer {
         costRepo.save(new Cost("Insurance [Car]", CostType.ANNUAL, 50000, user));
         costRepo.save(new Cost("Seasonal service [Truck]", CostType.ANNUAL, 100000, user));
 
-
         costRepo.save(new Cost("Car leasing cost", CostType.MONTHLY, 120000, user));
         costRepo.save(new Cost("Accountant", CostType.MONTHLY, 50000, user));
         costRepo.save(new Cost("Fuel", CostType.MONTHLY, 500000, user));
@@ -132,8 +130,8 @@ public class ExampleDataInitializer {
         Random rand = new Random();
         for (int i = 0; i < 31; i++) {
             for (int j = 0; j < 12; j++) {
-                for (int k = 0; k < 4; k++) {
-                    Date sellingDate = new GregorianCalendar(2016 + k, j, i).getTime();
+                for (int k = 0; k < 7; k++) {
+                    Date sellingDate = new GregorianCalendar(2013 + k, j, i).getTime();
                     if (sellingDate.compareTo(new Date()) > 0) break;
 
                     if (i == 0)
@@ -160,7 +158,7 @@ public class ExampleDataInitializer {
                     Long quantity = (long) rand.nextInt(50) + 30;
                     Double profit = income - value;
 
-                    for (int l = 0; l < 4 + k; l++) {
+                    for (int l = 0; l < 4 + k + rand.nextInt(2) - 2; l++) {
                         ProductCategory randomCategory = productCategories.get(rand.nextInt(productCategories.size()));
                         Product product = new Product(randomCategory, chest, quantity, value, "");
                         productRepo.save(product);
@@ -170,7 +168,6 @@ public class ExampleDataInitializer {
                         soldProducts.add(soldProduct);
                         soldProductRepo.save(soldProduct);
                     }
-
                 }
             }
         }

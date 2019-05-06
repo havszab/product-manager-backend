@@ -5,6 +5,7 @@ import com.havszab.productmanager.model.ProductCategory;
 import com.havszab.productmanager.model.UnitCategory;
 import com.havszab.productmanager.model.User;
 import com.havszab.productmanager.repositories.*;
+import com.havszab.productmanager.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,9 @@ public class ProductController {
 
     @Autowired
     UserRepo userRepo;
+
+    @Autowired
+    UserService userService;
 
     @CrossOrigin
     @PostMapping("/get-product-categories")
@@ -97,23 +101,11 @@ public class ProductController {
     public Map getProfitPerDays(@RequestParam String dateFrom, @RequestParam String dateTo, @RequestParam String email) {
         Map response = new HashMap();
         try {
-            LocalDate from = new Date(Long.parseLong(dateFrom)).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate to = new Date(Long.parseLong(dateTo)).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            int beginningDay = from.getDayOfMonth();
-            int endDay = to.getDayOfMonth();
+            Date from = new Date(Long.parseLong(dateFrom));
+            Date to = new Date(Long.parseLong(dateTo));
 
-            Long id = userRepo.findByEmail(email).getId();
-
-            List<Object> result = new ArrayList<>();
-
-            while (beginningDay != endDay + 1) {
-                Date fromDay = new GregorianCalendar(from.getYear(), from.getMonthValue() - 1, beginningDay).getTime();
-                Date toDay = new GregorianCalendar(from.getYear(), from.getMonthValue() - 1, beginningDay + 1).getTime();
-                result.add(soldProductRepo.getSumProfitByDay(fromDay, toDay, id));
-                beginningDay++;
-            }
             response.put("success", true);
-            response.put("profitPerDays", result);
+            response.put("profitPerDays", soldProductRepo.getSumProfitByDay(from, to, userService.getByEmail(email)));
         } catch (Exception e) {
             System.out.println(e);
             response.put("success", false);

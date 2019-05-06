@@ -1,6 +1,7 @@
 package com.havszab.productmanager.repositories;
 
 import com.havszab.productmanager.model.SoldProduct;
+import com.havszab.productmanager.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -44,18 +45,26 @@ public interface SoldProductRepo extends JpaRepository<SoldProduct, Long> {
     List<Object> getProfitPercentPerProductCategory();
 
     @Query(value =
-            "SELECT SUM(p.profit) AS sum_profit, ?1 AS date FROM product AS p " +
-                    "    JOIN sales_products s2 on p.id = s2.products_id " +
-                    "    JOIN sales ON s2.sales_id = sales.id " +
-                    "WHERE sales.owner_id=?3 AND p.selling_date BETWEEN ?1 AND ?2 ", nativeQuery = true)
-    Object getSumProfitByDay(Date dateFrom, Date dateTo, Long ownerId);
+            "SELECT SUM(p.profit) AS sum_profit, extract(day from selling_date) as day  " +
+                    "FROM product AS p " +
+                    "JOIN sales_products s2 on p.id = s2.products_id " +
+                    "JOIN sales ON s2.sales_id = sales.id " +
+                    "WHERE sales.owner_id = ?3 " +
+                    "  AND p.selling_date BETWEEN ?1 AND ?2 " +
+                    "GROUP BY day " +
+                    "ORDER BY day ;", nativeQuery = true)
+    List<Object> getSumProfitByDay(Date dateFrom, Date dateTo, User user);
 
     @Query(value =
-            "SELECT SUM(p.selling_price) AS sum_income, ?1 AS date FROM product AS p " +
-                    "    JOIN sales_products s2 on p.id = s2.products_id " +
-                    "    JOIN sales ON s2.sales_id = sales.id " +
-                    "WHERE sales.owner_id=?3 AND p.selling_date BETWEEN ?1 AND ?2 ", nativeQuery = true)
-    Object getSumIncomeByDay(Date dateFrom, Date dateTo, Long ownerId);
+            "SELECT SUM (p.selling_price) AS income, extract(day from selling_date) as day " +
+                    "FROM product AS p " +
+                    "JOIN sales_products s2 on p.id = s2.products_id " +
+                    "JOIN sales ON s2.sales_id = sales.id " +
+                    "WHERE sales.owner_id = ?3 " +
+                    "  AND p.selling_date BETWEEN ?1 AND ?2 " +
+                    "GROUP BY day " +
+                    "ORDER BY day; ", nativeQuery = true)
+    List<Object> getSumIncomeByDay(Date dateFrom, Date dateTo, User user);
 
 
 }
