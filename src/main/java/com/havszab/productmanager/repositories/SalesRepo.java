@@ -32,4 +32,22 @@ public interface SalesRepo extends JpaRepository<Sales, Long> {
             "GROUP BY year " +
             "ORDER BY year ; ", nativeQuery = true)
     List<Map> getIncomesOfYears(User user);
+
+    @Query(value =
+            "SELECT extract(year from selling_date) as year, sum(p.profit) AS profit " +
+                    "FROM product AS p " +
+                    "       JOIN sales_products s2 on p.id = s2.products_id " +
+                    "       JOIN sales s3 on s2.sales_id = s3.id " +
+                    "WHERE s3.owner_id = ?1 " +
+                    "GROUP BY year " +
+                    "ORDER BY year ; ", nativeQuery = true)
+    List<Map> getProfitsOfYears(User user);
+
+    @Query(value =
+            "    SELECT COUNT(p.id) AS count " +
+            "    FROM product AS p " +
+            "           JOIN sales_products s2 on p.id = s2.products_id " +
+            "           JOIN sales s3 on s2.sales_id = s3.id " +
+            "    WHERE s3.owner_id = ?1 ; ", nativeQuery = true)
+    Map getSoldProductsCount(User user);
 }

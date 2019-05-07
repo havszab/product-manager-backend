@@ -29,7 +29,7 @@ public class EmployeeController {
             String phone = (String) employee.get("phone");
             String email = (String) employee.get("email");
             String position = (String) employee.get("position");
-            Double salary = Double.parseDouble( (String) employee.get("salary"));
+            Double salary = Double.parseDouble((String) employee.get("salary"));
             User user = userService.getByEmail(ownerEmail);
 
             employeeService.saveAndCreateCost(new Employee(
@@ -53,7 +53,13 @@ public class EmployeeController {
     @GetMapping("get-employees")
     public Map getEmployees(@RequestParam String email) {
         Map response = new HashMap();
-        response.put("employees", employeeService.getAllByOwner(userService.getByEmail(email)));
+        try {
+            response.put("success", true);
+            response.put("employees", employeeService.getAllByOwner(userService.getByEmail(email)));
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Could not fetch employees!");
+        }
         return response;
     }
 }

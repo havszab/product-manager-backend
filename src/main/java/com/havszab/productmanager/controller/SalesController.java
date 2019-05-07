@@ -159,7 +159,34 @@ public class SalesController {
             System.out.println(e);
             response.put("success", false);
             response.put("message", e);
-            throw e;
+        }
+        return response;
+    }
+
+    @GetMapping("get-profits-of-years")
+    public Map getProfitsOfYears ( @RequestParam String email) {
+        Map response = new HashMap();
+        try {
+            response.put("success", true);
+            response.put("profits", salesService.getIProfitsOfYears(userService.getByEmail(email)));
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("success", false);
+            response.put("message", e);
+        }
+        return response;
+    }
+
+    @GetMapping("get-sold-products-count")
+    public Map getSoldProductsCount ( @RequestParam String email) {
+        Map response = new HashMap();
+        try {
+            response.put("success", true);
+            response.put("result", salesService.getSoldProductsCount(userService.getByEmail(email)));
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("success", false);
+            response.put("message", e);
         }
         return response;
     }

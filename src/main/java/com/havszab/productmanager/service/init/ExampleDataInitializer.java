@@ -130,8 +130,8 @@ public class ExampleDataInitializer {
         Random rand = new Random();
         for (int i = 0; i < 31; i++) {
             for (int j = 0; j < 12; j++) {
-                for (int k = 0; k < 7; k++) {
-                    Date sellingDate = new GregorianCalendar(2013 + k, j, i).getTime();
+                for (int k = 0; k < 21; k++) {
+                    Date sellingDate = new GregorianCalendar(1999 + k, j, i).getTime();
                     if (sellingDate.compareTo(new Date()) > 0) break;
 
                     if (i == 0)
@@ -158,7 +158,7 @@ public class ExampleDataInitializer {
                     Long quantity = (long) rand.nextInt(50) + 30;
                     Double profit = income - value;
 
-                    for (int l = 0; l < 4 + k + rand.nextInt(2) - 2; l++) {
+                    for (int l = 0; l < 2; l++) { //(k/2 + k/3) / 2
                         ProductCategory randomCategory = productCategories.get(rand.nextInt(productCategories.size()));
                         Product product = new Product(randomCategory, chest, quantity, value, "");
                         productRepo.save(product);

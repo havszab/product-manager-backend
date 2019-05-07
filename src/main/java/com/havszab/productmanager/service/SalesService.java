@@ -22,7 +22,14 @@ public class SalesService {
                 user.getId());
     }
 
+    public Map getSoldProductsCount (User user) { return salesRepo.getSoldProductsCount(user); }
+
     public List<Map> getIncomesOfYears (User user) {
         return salesRepo.getIncomesOfYears(user);
     }
+
+    public List<Map> getIProfitsOfYears (User user) {
+        return salesRepo.getProfitsOfYears(user);
+    }
+
 }
