@@ -1,0 +1,1 @@
+About the app: It's made for traders, who want to manage their items from the acquisition to the selling. During this process a lot of data will be produced - these are used to different statistics and and charts to represent the company's financial details and state. This app also provides the opportunity to administrate employees, company's expenses and investments.
